@@ -104,7 +104,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         super.onActivityResult(requestCode, resultCode, data);
 
         // CHECK IF IT IS THE GALLERY GANGAN THAT IS CALLED , IF THE RESULT IS OKAY AND THAT AN IMAGE HAS BEEN SELECTED
-        if(requestCode==IMAGERESULT && requestCode==RESULT_OK && data !=null)
+        if(requestCode==IMAGERESULT && resultCode==RESULT_OK && data !=null)
         {
           // to display the image selected , create an URI which is a uniform resource indicator ,
 
