@@ -52,7 +52,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     EditText download;
     Button uploadimage;
     Button downloadimage;
-    ProgressDialog pd;
+
 
     Uri selectedimage;
     FirebaseStorage storage = FirebaseStorage.getInstance();
@@ -138,6 +138,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             case R.id.downloadimage:
 
                 if (ref != null) {
+                    Toast.makeText(MainActivity.this, "TEST", Toast.LENGTH_LONG).show();
+            final ProgressDialog pd= new ProgressDialog(this);
                     pd.setTitle("Downloading...");
                     pd.setMessage(null);
                     pd.show();
