@@ -1,14 +1,28 @@
 package com.example.tobeisun.image_upload;
 
+import android.app.ProgressDialog;
 import android.content.Intent;
+import android.graphics.Bitmap;
 import android.net.Uri;
 import android.provider.MediaStore;
+import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.ProgressBar;
+import android.widget.Toast;
+
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.OnProgressListener;
+import com.google.firebase.storage.StorageReference;
+import com.google.firebase.storage.UploadTask;
+
+import java.util.UUID;
 
 public class MainActivity extends AppCompatActivity implements View.OnClickListener{
 
@@ -37,6 +51,10 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
      Button uploadimage ;
      Button downloadimage;
 
+    Uri selectedimage;
+    FirebaseStorage storage = FirebaseStorage.getInstance();
+    StorageReference ref = storage.getReferenceFromUrl("gs://imageupload-25b8b.appspot.com");    //got the URI from firebase storage
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -49,6 +67,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         download= (EditText)findViewById(R.id.Downloadname);
         uploadimage=(Button)findViewById(R.id.uploadimage) ;
         downloadimage=(Button)findViewById(R.id.downloadimage);
+
+
 
 // an eror first pops up because the main activity has not been made an onclick listener .. so to correct that , add implements view . onclicklistener to the top of the code
         toupload.setOnClickListener(this);
@@ -80,6 +100,50 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
 
 
+
+                if(selectedimage != null)
+                {
+                    Toast.makeText(MainActivity.this, "test", Toast.LENGTH_SHORT).show();
+                    final ProgressDialog progressDialog = new ProgressDialog(this);
+                    progressDialog.setTitle("Uploading...");
+                    progressDialog.show();
+
+                    ref = ref.child ("images/"+ UUID.randomUUID().toString());
+                    ref.putFile(selectedimage)
+                            .addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
+                                @Override
+                                public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
+                                    progressDialog.dismiss();
+                                    Toast.makeText(MainActivity.this, "Uploaded", Toast.LENGTH_SHORT).show();
+                                }
+                            })
+                            .addOnFailureListener(new OnFailureListener() {
+                                @Override
+                                public void onFailure(@NonNull Exception e) {
+                                    progressDialog.dismiss();
+                                    Toast.makeText(MainActivity.this, "Failed "+e.getMessage(), Toast.LENGTH_SHORT).show();
+                                }
+                            })
+                            .addOnProgressListener(new OnProgressListener<UploadTask.TaskSnapshot>() {
+                                @Override
+                                public void onProgress(UploadTask.TaskSnapshot taskSnapshot) {
+                                    double progress = (100.0*taskSnapshot.getBytesTransferred()/taskSnapshot
+                                            .getTotalByteCount());
+                                    progressDialog.setMessage("Uploaded "+(int)progress+"%");
+                                }
+                            });
+                }
+
+
+
+
+                else {
+                    Toast.makeText(MainActivity.this, "Select an image", Toast.LENGTH_SHORT).show();
+                }
+
+
+
+
                 break;
 
 
@@ -108,11 +172,14 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         {
           // to display the image selected , create an URI which is a uniform resource indicator ,
 
-            Uri selectedimage = data.getData();               // this shows the address of the image on the phone
+            selectedimage = data.getData();               // this shows the address of the image on the phone
 
 
             toupload.setImageURI(selectedimage); // displays the image in the image view
         }
+
+
+
 
     }
 }
